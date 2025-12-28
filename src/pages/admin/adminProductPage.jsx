@@ -32,7 +32,9 @@ export default function AdminProductPage() {
     }).then(()=>{
       const publicUrl = supabase.storage.from("images").getPublicUrl(image.name).data.publicUrl
       console.log(publicUrl)
-    }).catch()
+    }).catch((err)=>{
+      console.log(err)
+    })
   
 
   }
