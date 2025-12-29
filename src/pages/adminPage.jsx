@@ -1,5 +1,6 @@
 import { Link, Routes ,Route } from "react-router-dom";
 import AdminProductPage from "./admin/adminProductPage"
+import AddProductPage from "./admin/addProductPage";
 
  export default function AdminPage() {
      return (
@@ -29,6 +30,7 @@ import AdminProductPage from "./admin/adminProductPage"
              <Route path="/Products" element={<AdminProductPage />} />
              <Route path="/settings" element={<h1>Site Settings Section</h1>} />
              <Route path="/reports" element={<h1>Reports Section</h1>} />
+             <Route path="/addproduct" element={<AddProductPage/>} />
              <Route
                path="*"
                element={<h1>Select an option from the sidebar.</h1>}

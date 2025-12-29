@@ -26,4 +26,5 @@ const url = "https://cwlwupuwjatezofxlgjm.supabase.co";
             });
         }
     )
+    return mediaUploadPromise;
   }
