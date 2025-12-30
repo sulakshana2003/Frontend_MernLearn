@@ -3,37 +3,41 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import fileUpload from "../../utils/mediaUpload";
 import axios from "axios";
 
-export default function AddProductPage() {
+export default function UpdateProductPage() {
   const navigate = useNavigate();
-  const [productId, setProductId] = useState("");
-  const [name, setName] = useState("");
-  const [altNames, setAltNames] = useState([]);
-  const [description, setDescription] = useState("");
-  const [images, setImages] = useState([]);
-  const [stock, setStock] = useState(0);
-  const [price, setPrice] = useState(0);
-  const [labledPrice, setLabledPrice] = useState(0);
+  const location = useLocation();
 
-  async function handleAddProduct() {
+  const [productId, setProductId] = useState(location.state.productId);
+  const [name, setName] = useState(location.state.name);
+  const [altNames, setAltNames] = useState(location.state.altNames);
+  const [description, setDescription] = useState(location.state.description);
+  const [images, setImages] = useState([]);
+  const [stock, setStock] = useState(location.state.stock);
+  const [price, setPrice] = useState(location.state.price);
+  const [labledPrice, setLabledPrice] = useState(location.state.labledPrice);
+
+  console.log(location.state);
+
+  async function updateProduct() {
     const token = localStorage.getItem("token");
     if (!token) {
       return toast.error("You must be logged in to access this page");
     }
-    if (images.length == 0) {
-      toast.error("Please upload at least one image");
-      return;
-    }
+    let imageUrls = location.state.images;
+
     const promisesArray = [];
     for (let i = 0; i < images.length; i++) {
       promisesArray[i] = fileUpload(images[i]);
     }
     try {
-      const imagesUrls = await Promise.all(promisesArray);
-      console.log(imagesUrls);
+      if (images.length > 0) {
+        imageUrls = await Promise.all(promisesArray);
+      }
+      console.log(imageUrls);
       const altnamesArray = altNames.map((n) => n.trim()).filter(Boolean);
 
       const productData = {
@@ -44,18 +48,18 @@ export default function AddProductPage() {
         stock,
         price,
         labledprice: labledPrice,
-        images: imagesUrls,
+        images: imageUrls,
       };
 
       axios
-        .post(import.meta.env.VITE_BACKEND_URI + "/api/products/add", productData, {
+        .put(import.meta.env.VITE_BACKEND_URI + "/api/products/" + productId, productData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
           console.log(res.data);
-          toast.success("Product added successfully");
+          toast.success("Product Updated successfully");
           navigate("/admin/products");
         })
         .catch((err) => {
@@ -72,26 +76,29 @@ export default function AddProductPage() {
       <div className="mx-auto max-w-4xl px-4 py-10">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Add Product</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Update Product</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Fill in the details below and upload product images.
+            Edit details and optionally upload new images.
           </p>
         </div>
 
         {/* Card */}
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="p-6 md:p-8">
+            {/* Form Grid */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {/* Product ID */}
+              {/* Product ID (disabled) */}
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-slate-700">Product ID</label>
                 <input
                   type="text"
-                  placeholder="e.g. PRD-001"
+                  placeholder="Product ID"
+                  disabled
                   value={productId}
                   onChange={(e) => setProductId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-slate-700 outline-none"
                 />
+                <p className="text-xs text-slate-500">Product ID can’t be changed.</p>
               </div>
 
               {/* Name */}
@@ -99,7 +106,7 @@ export default function AddProductPage() {
                 <label className="text-sm font-medium text-slate-700">Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Wireless Mouse"
+                  placeholder="Product name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
@@ -110,9 +117,7 @@ export default function AddProductPage() {
               <div className="flex flex-col gap-2 md:col-span-2">
                 <label className="text-sm font-medium text-slate-700">
                   Alternative Names
-                  <span className="ml-2 text-xs font-normal text-slate-500">
-                    (comma separated)
-                  </span>
+                  <span className="ml-2 text-xs font-normal text-slate-500">(comma separated)</span>
                 </label>
                 <input
                   type="text"
@@ -135,23 +140,45 @@ export default function AddProductPage() {
                 />
               </div>
 
-              {/* Images */}
+              {/* Existing Images Preview */}
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-slate-700">Images</label>
+                <label className="text-sm font-medium text-slate-700">Current Images</label>
+                <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-4">
+                  {location.state?.images?.length ? (
+                    <div className="flex flex-wrap gap-3">
+                      {location.state.images.map((url, idx) => (
+                        <div
+                          key={`${url}-${idx}`}
+                          className="h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                        >
+                          <img src={url} alt={`Product ${idx + 1}`} className="h-full w-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">No images found.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Upload New Images */}
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium text-slate-700">
+                  Upload New Images
+                  <span className="ml-2 text-xs font-normal text-slate-500">
+                    (leave empty to keep current)
+                  </span>
+                </label>
 
                 <div className="mt-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-800">
-                        Upload product photos
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        PNG, JPG. You can select multiple files.
-                      </p>
+                      <p className="text-sm font-medium text-slate-800">Choose files</p>
+                      <p className="text-xs text-slate-500">PNG, JPG. Multiple allowed.</p>
                     </div>
 
                     <label className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800">
-                      Choose files
+                      Select files
                       <input
                         type="file"
                         multiple
@@ -161,21 +188,21 @@ export default function AddProductPage() {
                     </label>
                   </div>
 
-                  {/* Selected files preview */}
+                  {/* Selected New Files */}
                   <div className="mt-4">
                     {images?.length ? (
                       <div className="flex flex-wrap gap-2">
                         {images.map((f, idx) => (
                           <span
                             key={`${f.name}-${idx}`}
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
                           >
                             {f.name}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-500">No files selected.</p>
+                      <p className="text-xs text-slate-500">No new files selected.</p>
                     )}
                   </div>
                 </div>
@@ -205,7 +232,7 @@ export default function AddProductPage() {
                 />
               </div>
 
-              {/* Labled Price */}
+              {/* Labeled Price */}
               <div className="flex flex-col gap-2 md:col-span-2">
                 <label className="text-sm font-medium text-slate-700">Labeled Price</label>
                 <input
@@ -229,17 +256,16 @@ export default function AddProductPage() {
 
               <button
                 className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99]"
-                onClick={handleAddProduct}
+                onClick={updateProduct}
               >
-                Add Product
+                Update Product
               </button>
             </div>
           </div>
         </div>
 
-        {/* Footer hint */}
         <p className="mt-6 text-center text-xs text-slate-500">
-          Tip: Use clear names and upload at least one high-quality image.
+          Uploading new images will replace the current ones.
         </p>
       </div>
     </div>

@@ -1,8 +1,24 @@
+import { Link } from "react-router-dom";
+import { Routes ,Route } from "react-router-dom";
+import Header from "../components/header";
+import HomepageUi from "./client/HompePageUi";
+import ProductPage from "./client/productPage";
+
+
+
 export default function Homepage() {
-    return (    
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <h2 className="text-3xl font-bold mb-4">Welcome to the Homepage</h2>
-            <p className="text-lg text-gray-700">This is a simple homepage layout using Tailwind CSS.</p>
-        </div>
-    );
+  return (
+    <>
+    <Header/>
+    <>
+    <Routes path="/*">
+      <Route path="/" element={<HomepageUi />} />
+      <Route path="/products" element = {<ProductPage />} />
+      <Route path="/*" element={<h2 className="text-center mt-8 text-2xl">404: Page Not Found</h2>} />  
+    </Routes>
+    </>
+    
+    </>
+
+)
 }
