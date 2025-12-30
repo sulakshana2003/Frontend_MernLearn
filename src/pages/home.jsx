@@ -3,6 +3,7 @@ import { Routes ,Route } from "react-router-dom";
 import Header from "../components/header";
 import HomepageUi from "./client/HompePageUi";
 import ProductPage from "./client/productPage";
+import ProductOverView from "./client/productOverView";
 
 
 
@@ -14,6 +15,7 @@ export default function Homepage() {
     <Routes path="/*">
       <Route path="/" element={<HomepageUi />} />
       <Route path="/products" element = {<ProductPage />} />
+      <Route path="/overview/:id" element = {<ProductOverView/>}/>
       <Route path="/*" element={<h2 className="text-center mt-8 text-2xl">404: Page Not Found</h2>} />  
     </Routes>
     </>

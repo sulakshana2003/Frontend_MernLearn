@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function ProductCard(props) {
     const product = props.product;
   const img =
@@ -8,7 +10,7 @@ export default function ProductCard(props) {
   const labeled = product.labledprice ;
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <Link to={"/overview/" + product.productId} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       {/* Image */}
       <div className="relative">
         <img
@@ -64,6 +66,6 @@ export default function ProductCard(props) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
