@@ -1,6 +1,29 @@
+/* eslint-disable no-unused-vars */
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function HomepageUi() {
+  const [threeProducts, setThreeProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          import.meta.env.VITE_BACKEND_URI + "/api/products?limit=3"
+        );
+        setThreeProducts(response.data);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50">
       {/* Hero */}
@@ -165,7 +188,7 @@ export default function HomepageUi() {
               to="/products"
               className={`group rounded-2xl border border-slate-200 ${c.bg} p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}
             >
-              <div className="h-10 w-10 rounded-2xl bg-white/70" />
+              <div className="h-10 w-10 rounded-2xl ]" />
               <p className="mt-4 text-base font-semibold text-slate-900">
                 {c.title}
               </p>
@@ -190,28 +213,20 @@ export default function HomepageUi() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { name: "Hydra Dew Serum", tag: "Skincare", price: "LKR 6,900" },
-            {
-              name: "Velvet Matte Lipstick",
-              tag: "Makeup",
-              price: "LKR 3,500",
-            },
-            {
-              name: "Bloom Eau de Parfum",
-              tag: "Fragrance",
-              price: "LKR 12,900",
-            },
-          ].map((p) => (
+          {threeProducts.map((p) => (
             <div
               key={p.name}
               className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-              <div className="h-44 w-full rounded-2xl bg-slate-100" />
+              <div
+                className={"h-44 w-full rounded-2xl "}
+                style={{
+                  backgroundImage: `url("${p.images?.[0] ?? ""}")`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
               <div className="mt-4 flex items-center justify-between">
-                <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
-                  {p.tag}
-                </span>
                 <span className="text-sm font-semibold text-slate-900">
                   {p.price}
                 </span>

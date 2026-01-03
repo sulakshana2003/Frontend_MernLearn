@@ -3,11 +3,40 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { GrGoogle } from "react-icons/gr";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const loginwithGoogle = useGoogleLogin({
+    scope: "openid email profile",
+    onSuccess: (response) => {
+      const token = response.access_token;
+      axios
+        .post(import.meta.env.VITE_BACKEND_URI + "/api/users/login/google", {
+          token: token,
+        })
+        .then((res) => {
+          toast.success("Login Successful");
+          console.log(res.data);
+          localStorage.setItem("token", res.data.token);
+          if (res.data.role === "admin") {
+            navigate("/admin/");
+          } else {
+            navigate("/");
+          }
+        })
+        .catch((err) => {
+          toast.error("Google Login Failed");
+          console.log(err);
+        });
+    },
+    onError: () => {
+      toast.error("Google Login Failed");
+    },
+  });
 
   async function handleLogin() {
     console.log(email, password);
@@ -110,12 +139,29 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <button
-                  className="mt-2 inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/90 active:scale-[0.99]"
-                  onClick={handleLogin}
-                >
-                  Log in
-                </button>
+                <div className="pt-2 space-y-3">
+                  <button
+                    className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/90 active:scale-[0.99]"
+                    onClick={handleLogin}
+                  >
+                    Log in
+                  </button>
+
+                  <div className="relative flex items-center justify-center">
+                    <div className="h-px w-full bg-white/20" />
+                    <span className="absolute rounded-full bg-black/30 px-3 py-1 text-[11px] font-semibold text-white/80">
+                      OR
+                    </span>
+                  </div>
+
+                  <button
+                    className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20 active:scale-[0.99]"
+                    onClick={loginwithGoogle}
+                  >
+                    <GrGoogle className="text-lg" />
+                    Continue with Google
+                  </button>
+                </div>
 
                 <div className="pt-2 text-center text-xs text-white/70">
                   <p>By continuing, you agree to our policies.</p>

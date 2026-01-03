@@ -8,21 +8,23 @@ import Homepage from "./pages/home";
 import AdminPage from "./pages/adminPage";
 import TestPage from "./pages/testPage";
 import { Toaster } from "react-hot-toast";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div>
-        <Toaster position="top-center" />
-        <Routes path="/*">
-          <Route path="/" element={<Homepage />} />
-
-          <Route path="/test" element={<TestPage />} />
-          <Route path="/admin/*" element={<AdminPage />} />
-          <Route path="/*" element={<Homepage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID}>
+      <BrowserRouter>
+        <div>
+          <Toaster position="top-center" />
+          <Routes path="/*">
+            <Route path="/" element={<Homepage />} />
+            <Route path="/test" element={<TestPage />} />
+            <Route path="/admin/*" element={<AdminPage />} />
+            <Route path="/*" element={<Homepage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }
 
