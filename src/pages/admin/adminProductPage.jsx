@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { sampleProducts } from "../../assets/sampleData";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
@@ -14,19 +14,17 @@ export default function AdminProductPage() {
   useEffect(() => {
     if (isLoading) {
       axios
-      .get(import.meta.env.VITE_BACKEND_URI + "/api/products")
-      .then((res) => {
-        console.log(res.data);
-        setProducts(res.data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        .get(import.meta.env.VITE_BACKEND_URI + "/api/products")
+        .then((res) => {
+          console.log(res.data);
+          setProducts(res.data);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-    
   }, [isLoading]);
-
 
   function deleteProduct(productId) {
     const token = localStorage.getItem("token");
@@ -34,11 +32,12 @@ export default function AdminProductPage() {
       toast.error("You must be logged in to delete a product.");
       return;
     }
-    axios.delete(import.meta.env.VITE_BACKEND_URI + `/api/products/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    axios
+      .delete(import.meta.env.VITE_BACKEND_URI + `/api/products/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         console.log(res.data);
         toast.success("Product deleted successfully");
@@ -82,7 +81,6 @@ export default function AdminProductPage() {
                 </span>
               </div>
 
-              {/* (Optional) quick hint text */}
               <div className="text-xs text-slate-500">
                 Tip: Click <span className="font-medium">Edit</span> to update a
                 product.
@@ -90,128 +88,234 @@ export default function AdminProductPage() {
             </div>
           </div>
 
-          {/* Scrollable table wrapper */}
-          {
-            !isLoading ?         
-          <div className="w-full overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left">
-              <thead className="sticky top-0 bg-white">
-                <tr className="border-b border-slate-200">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Product ID
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Product
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Image
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Labeled Price
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Price
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Stock
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-                {products.map((item, index) => {
-                  return (
-                    <tr
-                      key={item.productId}
-                      className="transition hover:bg-slate-50"
-                    >
-                      <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
-                        <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                          {item.productId}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-4 sm:px-6">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-slate-900">
-                            {item.name}
+          {!isLoading ? (
+            <div className="p-4 sm:p-6">
+              {/* MOBILE: Cards */}
+              <div className="space-y-4 md:hidden">
+                {products.map((item) => (
+                  <div
+                    key={item.productId}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          {item.name}
+                        </h3>
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          ID:{" "}
+                          <span className="font-medium text-slate-700">
+                            {item.productId}
                           </span>
-                          <span className="mt-0.5 text-xs text-slate-500">
-                            {item?.altNames?.[0] ? `aka ${item.altNames[0]}` : ""}
+                        </p>
+                        {item?.altNames?.[0] ? (
+                          <p className="mt-0.5 text-xs text-slate-500">
+                            aka{" "}
+                            <span className="font-medium text-slate-700">
+                              {item.altNames[0]}
+                            </span>
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          Number(item.stock) > 0
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-rose-50 text-rose-700"
+                        }`}
+                      >
+                        {Number(item.stock) > 0
+                          ? `${item.stock} in stock`
+                          : "Out of stock"}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <img
+                        src={item.images?.[0]}
+                        alt={item.altNames?.[0] || item.name}
+                        className="h-16 w-16 rounded-xl border border-slate-200 object-cover"
+                      />
+
+                      <div className="flex flex-1 flex-col gap-1 text-sm">
+                        <p>
+                          <span className="text-slate-500">Price:</span>{" "}
+                          <span className="font-semibold text-slate-900">
+                            {item.price}
                           </span>
-                        </div>
-                      </td>
+                        </p>
+                        <p>
+                          <span className="text-slate-500">Labeled:</span>{" "}
+                          <span className="font-medium text-slate-700">
+                            {item.labledprice}
+                          </span>
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {item.images?.length
+                            ? `${item.images.length} photo(s)`
+                            : "—"}
+                        </p>
+                      </div>
+                    </div>
 
-                      <td className="px-4 py-4 sm:px-6">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={item.images?.[0]}
-                            alt={item.altNames?.[0] || item.name}
-                            className="h-12 w-12 rounded-xl border border-slate-200 object-cover"
-                          />
-                          <div className="text-xs text-slate-500">
-                            {item.images?.length ? `${item.images.length} photo(s)` : "—"}
-                          </div>
-                        </div>
-                      </td>
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        className="flex-1 rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99]"
+                        onClick={() => {
+                          navigate("/admin/editproduct", { state: item });
+                        }}
+                      >
+                        Edit
+                      </button>
 
-                      <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
-                        <span className="font-medium text-slate-900">
-                          {item.labledprice}
-                        </span>
-                      </td>
+                      <button
+                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 active:scale-[0.99]"
+                        onClick={() => deleteProduct(item.productId)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-                      <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
-                        <span className="font-medium text-slate-900">
-                          {item.price}
-                        </span>
-                      </td>
+              {/* DESKTOP: Table (your original table preserved) */}
+              <div className="hidden md:block">
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full min-w-[900px] text-left">
+                    <thead className="sticky top-0 bg-white">
+                      <tr className="border-b border-slate-200">
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Product ID
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Product
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Image
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Labeled Price
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Price
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Stock
+                        </th>
+                        <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:px-6">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
 
-                      <td className="px-4 py-4 sm:px-6">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                            Number(item.stock) > 0
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-rose-50 text-rose-700"
-                          }`}
-                        >
-                          {Number(item.stock) > 0 ? `${item.stock} in stock` : "Out of stock"}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-4 sm:px-6">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99]"
-                            onClick={() => {
-                              navigate("/admin/editproduct", {
-                                state: item,
-                              });
-                            }}
+                    <tbody className="divide-y divide-slate-100">
+                      {products.map((item) => {
+                        return (
+                          <tr
+                            key={item.productId}
+                            className="transition hover:bg-slate-50"
                           >
-                            Edit
-                          </button>
+                            <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
+                              <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                                {item.productId}
+                              </span>
+                            </td>
 
-                          <button className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 active:scale-[0.99]"
-                          onClick={() => deleteProduct(item.productId)}>
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          : <div className="p-4">Loading products...</div>
-      }
+                            <td className="px-4 py-4 sm:px-6">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-slate-900">
+                                  {item.name}
+                                </span>
+                                <span className="mt-0.5 text-xs text-slate-500">
+                                  {item?.altNames?.[0]
+                                    ? `aka ${item.altNames[0]}`
+                                    : ""}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td className="px-4 py-4 sm:px-6">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={item.images?.[0]}
+                                  alt={item.altNames?.[0] || item.name}
+                                  className="h-12 w-12 rounded-xl border border-slate-200 object-cover"
+                                />
+                                <div className="text-xs text-slate-500">
+                                  {item.images?.length
+                                    ? `${item.images.length} photo(s)`
+                                    : "—"}
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
+                              <span className="font-medium text-slate-900">
+                                {item.labledprice}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 text-sm text-slate-700 sm:px-6">
+                              <span className="font-medium text-slate-900">
+                                {item.price}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 sm:px-6">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                  Number(item.stock) > 0
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : "bg-rose-50 text-rose-700"
+                                }`}
+                              >
+                                {Number(item.stock) > 0
+                                  ? `${item.stock} in stock`
+                                  : "Out of stock"}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 sm:px-6">
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99]"
+                                  onClick={() => {
+                                    navigate("/admin/editproduct", {
+                                      state: item,
+                                    });
+                                  }}
+                                >
+                                  Edit
+                                </button>
+
+                                <button
+                                  className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 active:scale-[0.99]"
+                                  onClick={() => deleteProduct(item.productId)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4">Loading products...</div>
+          )}
+
           {/* Footer */}
           <div className="border-t border-slate-200 px-4 py-4 text-xs text-slate-500 sm:px-6">
-            Showing <span className="font-medium text-slate-700">{products?.length || 0}</span>{" "}
+            Showing{" "}
+            <span className="font-medium text-slate-700">
+              {products?.length || 0}
+            </span>{" "}
             product(s).
           </div>
         </div>
