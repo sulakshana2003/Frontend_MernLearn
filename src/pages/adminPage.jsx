@@ -30,6 +30,12 @@ export default function AdminPage() {
   }, [navigate]);
 
   const isActive = (path) => location.pathname.startsWith(path);
+  function logOut() {
+    localStorage.removeItem("token");
+    toast.success("Logged out successfully");
+    navigate("/", { replace: true });
+    window.location.reload();
+  }
 
   const linkBase =
     "rounded-xl px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400";
@@ -84,14 +90,14 @@ export default function AdminPage() {
           </Link>
 
           <Link
-            to="/admin/reports"
+            onClick={logOut}
             className={[
               linkBase,
               "shrink-0",
-              isActive("/admin/reports") ? linkActive : linkIdle,
+              isActive("/admin/settings") ? linkActive : linkIdle,
             ].join(" ")}
           >
-            Reports
+            logOut
           </Link>
         </nav>
 
