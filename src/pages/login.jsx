@@ -138,6 +138,22 @@ export default function LoginPage() {
                     }}
                   />
                 </div>
+                <div className="pt-2 text-center text-xs text-white/70">
+                  <p>
+                    forget password?{" "}
+                    <Link
+                      to="/forgot-password"
+                      className="text-white "
+                      onClick={() =>
+                        navigate(
+                          `/forgot-password?email=${encodeURIComponent(email)}`
+                        )
+                      }
+                    >
+                      reset here
+                    </Link>
+                  </p>
+                </div>
 
                 <div className="pt-2 space-y-3">
                   <button

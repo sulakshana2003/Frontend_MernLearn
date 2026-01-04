@@ -17,12 +17,14 @@ export default function AdminPage() {
     if (!tokenStr) {
       toast.error("Access denied. Please log in.");
       navigate("/", { replace: true });
+      window.location.reload();
       return;
     }
     const token = jwtDecode(tokenStr);
     if (token.role !== "admin") {
       toast.error("Access denied. Admins only.");
       navigate("/", { replace: true });
+      window.location.reload();
       return;
     }
   }, [navigate]);

@@ -8,6 +8,7 @@ import Cart from "./client/cart";
 import Checkout from "./client/checkout";
 import LoginPage from "./login";
 import RegisterPage from "./register";
+import ForgotPasswordPage from "./client/forgetPassword";
 export default function Homepage() {
   return (
     <>
@@ -17,6 +18,7 @@ export default function Homepage() {
           <Route path="/" element={<HomepageUi />} />
           <Route path="/products" element={<ProductPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/signup" element={<RegisterPage />} />
           <Route path="/overview/:id" element={<ProductOverView />} />
           <Route path="/cart" element={<Cart />} />
